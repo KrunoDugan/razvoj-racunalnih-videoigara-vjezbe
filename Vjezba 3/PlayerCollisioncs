@@ -1,0 +1,37 @@
+using UnityEngine;
+using System.Collections;
+
+public class PlayerCollision : MonoBehaviour
+{
+    public int score = 0;
+    public float speedModifier = 1f;
+    private bool slowed = false;
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Bonus"))
+        {
+            score += 10;
+            Debug.Log("Bonus! Score: " + score);
+            Destroy(collision.gameObject);
+        }
+
+        if (collision.gameObject.CompareTag("Trap") && !slowed)
+        {
+            StartCoroutine(TrapSlowEffect());
+        }
+    }
+
+    IEnumerator TrapSlowEffect()
+    {
+        slowed = true;
+        speedModifier = 0.5f;
+        Debug.Log("Trap! Igrac je usporen.");
+
+        yield return new WaitForSeconds(3f);
+
+        speedModifier = 1f;
+        slowed = false;
+        Debug.Log("Trap efekt je zavrsio.");
+    }
+}
