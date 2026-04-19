@@ -1,24 +1,16 @@
 using UnityEngine;
-using System.Collections;
 
-public class PlayerInteract : MonoBehaviour
+public class CarController : MonoBehaviour
 {
-    public GameObject door;
+    public float speed = 10f;
+    public float turnSpeed = 50f;
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            StartCoroutine(OpenDoor());
-        }
-    }
+        float move = Input.GetAxis("Vertical") * speed * Time.deltaTime;
+        float turn = Input.GetAxis("Horizontal") * turnSpeed * Time.deltaTime;
 
-    IEnumerator OpenDoor()
-    {
-        door.transform.position += new Vector3(0, 3, 0);
-
-        yield return new WaitForSeconds(3);
-
-        door.transform.position -= new Vector3(0, 3, 0);
+        transform.Translate(0, 0, move);
+        transform.Rotate(0, turn, 0);
     }
 }
