@@ -3,43 +3,65 @@ using System.Collections;
 
 public class TriggerZone : MonoBehaviour
 {
-    public enum ZoneType { SpeedBoost, GravityChange }
+    public enum ZoneType
+    {
+        SpeedBoost,
+        GravityChange
+    }
+
     public ZoneType zoneType;
+
+    public float boostMultiplier = 2f;
+    public float boostDuration = 5f;
+    public Vector3 customGravity = new Vector3(0f, -2f, 0f);
+
+    private Vector3 defaultGravity;
+
+    void Start()
+    {
+        defaultGravity = Physics.gravity;
+    }
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            if (zoneType == ZoneType.SpeedBoost)
-            {
-                other.GetComponent<PlayerCollision>().StartCoroutine(SpeedBoost(other));
-            }
+        if (!other.CompareTag("Player")) return;
 
-            if (zoneType == ZoneType.GravityChange)
-            {
-                Physics.gravity = new Vector3(0, -2f, 0);
-            }
+        if (zoneType == ZoneType.SpeedBoost)
+        {
+            StartCoroutine(SpeedBoost(other));
+        }
+
+        if (zoneType == ZoneType.GravityChange)
+        {
+            Physics.gravity = customGravity;
+            Debug.Log("Gravity changed!");
         }
     }
 
     void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (!other.CompareTag("Player")) return;
+
+        if (zoneType == ZoneType.GravityChange)
         {
-            if (zoneType == ZoneType.GravityChange)
-            {
-                Physics.gravity = new Vector3(0, -9.81f, 0);
-            }
+            Physics.gravity = defaultGravity;
+            Debug.Log("Gravity restored!");
         }
     }
 
     IEnumerator SpeedBoost(Collider player)
     {
-        PlayerCollision pc = player.GetComponent<PlayerCollision>();
-        pc.speed *= 2;
+        CarController car = player.GetComponent<CarController>();
 
-        yield return new WaitForSeconds(5);
+        if (car != null)
+        {
+            car.speed *= boostMultiplier;
+            Debug.Log("Speed boost activated!");
 
-        pc.speed /= 2;
+            yield return new WaitForSeconds(boostDuration);
+
+            car.speed /= boostMultiplier;
+            Debug.Log("Speed boost ended!");
+        }
     }
 }
